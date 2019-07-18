@@ -1,4 +1,5 @@
 import dbus
+import os
 import subprocess
 from subprocess import Popen
 import time
@@ -8,6 +9,6 @@ command1 = 'omxplayer --win 1000,0,1640,480 --dbus_name "org.mpris.MediaPlayer2.
 
 Popen([command1], shell=True)
 
-time.sleep(1)
-subprocess.call(['dbuscontrol.sh org.mpris.MediaPlayer2.omxplayer1 stop'], shell=True)
+time.sleep(3)
+os.system('dbuscontrol.sh stop')
         
