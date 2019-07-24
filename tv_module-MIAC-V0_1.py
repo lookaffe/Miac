@@ -12,14 +12,14 @@ adc = Adafruit_ADS1x15.ADS1115()
 GAIN = 2
 
 # this video is used only to mantain a black screen
-VIDEO_PATH00 = Path("/home/pi/Miac/01.mp4")
+VIDEO_PATH00 = Path("/home/pi/Miac/Video/01.mp4")
 player00 = OMXPlayer(VIDEO_PATH00, args= '-b')
 player00.pause()
 player00.hide_video()
 sleep(1)
 
-VIDEO_PATHS = [Path("/home/pi/Miac/01.mp4"), Path("/home/pi/Miac/02.mp4"),Path("/home/pi/Miac/03.mp4"), Path("/home/pi/Miac/04.mp4")]
-NOISE_PATH = Path("/home/pi/Miac/staticNoise.mp4") #non più lungo di 1 secondo!
+VIDEO_PATHS = [Path("/home/pi/Miac/Video/01.mp4"), Path("/home/pi/Miac/Video/02.mp4"),Path("/home/pi/Miac/Video/03.mp4"), Path("/home/pi/Miac/Video/04.mp4")]
+NOISE_PATH = Path("/home/pi/Miac/Video/staticNoise.mp4") #non più lungo di 1 secondo!
 
 #initialization of players
 players = [0,0,0,0]
