@@ -20,8 +20,8 @@ adc = Adafruit_ADS1x15.ADS1115()
 # See table 3 in the ADS1015/ADS1115 datasheet for more info on gain.
 GAIN = 2
 
-noise = ("/home/pi/MIAC/staticNoise.mp4")
-movies = ("/home/pi/MIAC/Video/BIANCOROSSOVERDONE_1taglio.mp4", "/home/pi/MIAC/Video/SIGNORE_E_SIGNORI_1taglio.mp4")
+noise = ("/home/pi/Miac/staticNoise.mp4")
+movies = ("/home/pi/Miac/03.mp4","/home/pi/Miac/01.mp4")
 
 
 # inizializzazione parametri per l'avvio per non far partire subito un video
