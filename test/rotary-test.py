@@ -2,8 +2,8 @@
 import RPi.GPIO as GPIO
 import time
 
-RoAPin = 11    # pin11
-RoBPin = 12    # pin12
+RoAPin = 7    # pin11
+RoBPin = 8    # pin12
 RoSPin = 13    # pin13
 
 globalCounter = 0

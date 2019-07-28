@@ -12,10 +12,10 @@ adc = Adafruit_ADS1x15.ADS1115()
 GAIN = 2
 
 # this video is used only to mantain a black screen
-VIDEO_PATH00 = Path("/home/pi/Miac/Video/01.mp4")
-player00 = OMXPlayer(VIDEO_PATH00) #, args= '-b')
-player00.pause()
-player00.hide_video()
+VIDEO_PATH00 = Path("/home/pi/Miac/Video/staticNoise.mp4")#"/home/pi/Miac/Video/01.mp4")
+player00 = OMXPlayer(VIDEO_PATH00, args= ['--layer', '2', '-loop', '-b'], dbus_name='org.mpris.MediaPlayer2.omxplayer1')
+##player00.pause()
+##player00.hide_video()
 sleep(1)
 
 VIDEO_PATHS = [Path("/home/pi/Miac/Video/01.mp4"), Path("/home/pi/Miac/Video/02.mp4"),Path("/home/pi/Miac/Video/03.mp4"), Path("/home/pi/Miac/Video/04.mp4")]
@@ -39,19 +39,19 @@ def pause_video(videoNum):
     players[videoNum].quit()
     
 #start the first video and hide 
-players[0] = OMXPlayer(VIDEO_PATHS[0], args=['-o', 'local', '--layer', '1', '--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer1') #, '--win', '1000,0,1640,480'
+players[0] = OMXPlayer(VIDEO_PATHS[0], args=['-o', 'local', '--layer', '2', '--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer2') #, '--win', '1000,0,1640,480'
 sleep(2)
 players[0].quit()
 
-players[1] = OMXPlayer(VIDEO_PATHS[1], args=['-o', 'local', '--layer', '1','--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer2') #, '-b'
+players[1] = OMXPlayer(VIDEO_PATHS[1], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer3') #, '-b'
 sleep(2)
 players[1].quit()
 
-players[2] = OMXPlayer(VIDEO_PATHS[2], args=['-o', 'local', '--layer', '1','--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer3') #, '-b'
+players[2] = OMXPlayer(VIDEO_PATHS[2], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer4') #, '-b'
 sleep(2)
 players[2].quit()
 
-players[3] = OMXPlayer(VIDEO_PATHS[3], args=['-o', 'local', '--layer', '1','--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer4') #, '-b'
+players[3] = OMXPlayer(VIDEO_PATHS[3], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer5') #, '-b'
 sleep(2)
 players[3].quit()
 
@@ -85,9 +85,9 @@ while True:
     try:
         if (players[playing_video].can_play()):
             
-            if ((abs(adc_value - adc.read_adc(0, gain=GAIN))>200) and (not noise_playing)):
-                noiseplay = OMXPlayer(NOISE_PATH, args=['-o', 'local', '--layer', '2','--vol', ' -4500', '--alpha', '55', '--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer9')
-                noise_playing = True
+##            if ((abs(adc_value - adc.read_adc(0, gain=GAIN))>200) and (not noise_playing)):
+##                noiseplay = OMXPlayer(NOISE_PATH, args=['-o', 'local', '--layer', '2','--vol', ' -4500', '--alpha', '55', '--no-osd', '--no-keys'], dbus_name='org.mpris.MediaPlayer2.omxplayer9')
+##                noise_playing = True
                 #sistemare la ripetizione del noise sovrapposta
             pre_adc_value = adc.read_adc(0, gain=GAIN)
             something_playing = True
