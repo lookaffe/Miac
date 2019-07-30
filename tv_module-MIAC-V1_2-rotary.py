@@ -17,7 +17,7 @@ flag = 0
 Last_RoB_Status = 0
 Current_RoB_Status = 0
 
-FOLDER = '/home/pi/Miac/Video/'
+FOLDER = '/home/pi/Videos/'
 DBUSNAME ='org.mpris.MediaPlayer2.omxplayer'
 
 ARGS1= ['-o', 'local', '--no-osd', '--layer', '1', '--loop']
@@ -40,7 +40,7 @@ VIDEO_PATHS = []
 for x in range(numOfVideos):
     VIDEO_PATHS.append(Path(FOLDER + entries[x]))
     #, Path("/home/pi/Miac/Video/clip2.mp4"),Path("/home/pi/Miac/Video/clip3.mp4"), Path("/home/pi/Miac/Video/clip4.mp4"),Path("/home/pi/Miac/Video/clip5.mp4"), Path("/home/pi/Miac/Video/clip6.mp4"),Path("/home/pi/Miac/Video/clip7.mp4"), Path("/home/pi/Miac/Video/clip8.mp4")]
-NOISE_PATH = Path("/home/pi/Miac/Video/standBy.mp4") #non più lungo di 1 secondo!
+NOISE_PATH = Path("/home/pi/Videos/standBy.mp4") #non più lungo di 1 secondo!
 
 #initialization of players and video duration
 players = []
