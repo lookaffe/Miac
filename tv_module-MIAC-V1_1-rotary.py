@@ -18,15 +18,17 @@ Last_RoB_Status = 0
 Current_RoB_Status = 0
 
 # this video is used for noise between videos
-STANDBY_PATH = Path("/home/pi/Miac/Video/standBy.mp4")#"/home/pi/Miac/Video/01.mp4")
-standBy_player = OMXPlayer(STANDBY_PATH, args= [ '--no-osd', '--layer', '1', '--loop', '--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer1')
+#STANDBY_PATH = Path("/home/pi/Miac/Video/whiteNoise.mp4")
+STANDBY_PATH = Path("/home/pi/Miac/Video/white_noise.mp4")
+standBy_player = OMXPlayer(STANDBY_PATH, args= ['-o', 'local', '--no-osd', '--layer', '1', '--loop','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer1') #'--win', '1000,0,1640,480'
 standBy_player.set_volume(0)
 #standBy_player.hide_video()
 
-VIDEO_PATHS = [Path("/home/pi/Miac/Video/02.mp4"), Path("/home/pi/Miac/Video/01.mp4"),Path("/home/pi/Miac/Video/03.mp4"), Path("/home/pi/Miac/Video/04.mp4")]
-NOISE_PATH = Path("/home/pi/Miac/Video/staticNoise.mp4") #non più lungo di 1 secondo!
+#VIDEO_PATHS = [Path("/home/pi/Miac/Video/01.mp4"), Path("/home/pi/Miac/Video/02.mp4"),Path("/home/pi/Miac/Video/03.mp4"), Path("/home/pi/Miac/Video/04.mp4")]
+VIDEO_PATHS = [Path("/home/pi/Miac/Video/clip1.mp4"), Path("/home/pi/Miac/Video/clip2.mp4"),Path("/home/pi/Miac/Video/clip3.mp4"), Path("/home/pi/Miac/Video/clip4.mp4"),Path("/home/pi/Miac/Video/clip5.mp4"), Path("/home/pi/Miac/Video/clip6.mp4"),Path("/home/pi/Miac/Video/clip7.mp4"), Path("/home/pi/Miac/Video/clip8.mp4")]
+NOISE_PATH = Path("/home/pi/Miac/Video/standBy.mp4") #non più lungo di 1 secondo!
 
-numOfVideos = 4
+numOfVideos = 8
 
 #initialization of players and video duration
 players = []
@@ -35,7 +37,7 @@ video_dur = []
 something_playing = False
 noise_playing = False
 update_video = False
-videoRange_steps = 6 # deve essere pari!
+videoRange_steps = 12 # deve essere pari!
 
 played_video = 0
 
@@ -46,16 +48,12 @@ def fade(videoNum, direction): # direction (1 fade in,  0 fade out)
         else: 
             players[videoNum].set_alpha(255-x)
 
-def play_video(videoNum):
-    players[videoNum].show_video()
-    players[videoNum].play()
-##    players[videoNum].load(VIDEO_PATHS[videoNum])
-    
-def pause_video(videoNum):
-    players[videoNum].pause()
-    players[videoNum].hide_video()
-    players[videoNum].set_position(0.0)
-##    players[videoNum].qui()
+def set_video(videoNum):
+    players[videoNum].set_volume(10)
+    sleep(1)
+    video_dur.append(players[videoNum].duration())
+    print("dur video ",videoNum," ", video_dur[videoNum])
+    players[videoNum].quit()
     
 def setup():
     GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
@@ -103,33 +101,33 @@ setup()
 ##
 #start the first video and hide 
 players.append(OMXPlayer(VIDEO_PATHS[0], args=['-o', 'local', '--layer', '2', '--no-osd', '--no-keys','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer2')) #, '--win', '1000,0,1640,480'
-sleep(2)
-video_dur.append(players[0].duration())
-print("dur video 0 ", video_dur[0])
-players[0].quit()
+set_video(0)
 
 players.append(OMXPlayer(VIDEO_PATHS[1], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer3')) #, '-b'
-sleep(2)
-video_dur.append(players[1].duration())
-print("dur video 1 ", video_dur[1])
-players[1].quit()
+set_video(1)
 
 players.append(OMXPlayer(VIDEO_PATHS[2], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer4')) #, '-b'
-sleep(2)
-video_dur.append(players[2].duration())
-print("dur video 2 ", video_dur[2])
-players[2].quit()
+set_video(2)
 
-players.append(OMXPlayer(VIDEO_PATHS[3], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer5')) #, '-b'
-sleep(2)
-video_dur.append(players[3].duration())
-print("dur video 3 ", video_dur[3])
-players[3].quit()
+players.append(OMXPlayer(VIDEO_PATHS[3], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer5')) #, '-b
+set_video(3)
+
+players.append(OMXPlayer(VIDEO_PATHS[4], args=['-o', 'local', '--layer', '2', '--no-osd', '--no-keys','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer6')) #, '--win', '1000,0,1640,480'
+set_video(4)
+
+players.append(OMXPlayer(VIDEO_PATHS[5], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer7')) #, '-b'
+set_video(5)
+
+players.append(OMXPlayer(VIDEO_PATHS[6], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer8')) #, '-b'
+set_video(6)
+
+players.append(OMXPlayer(VIDEO_PATHS[7], args=['-o', 'local', '--layer', '2','--no-osd', '--no-keys','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer9')) #, '-b'
+set_video(7)
 
 print("first played_video ",played_video)
 
 players[0].load(VIDEO_PATHS[0])
-players[0].set_volume(10)
+
 something_playing=1
 gc=0
 
@@ -137,36 +135,43 @@ while True:
     #update rotary value
     gc = rotaryDeal()
     try:
-
+    
+        if not something_playing:
+            standBy_player.set_volume(3)
         #change video
         if (gc<0 or gc>videoRange_steps):
             prev_video = played_video
             if gc>0:
                 played_video = played_video +1
                 globalCounter = 0
+                gc = 0
             else:
                 played_video = played_video -1
                 globalCounter = videoRange_steps
+                gc = videoRange_steps
             
             played_video = played_video%numOfVideos
-            print("played video ", played_video, " - previous " , prev_video)
+            #print("played video ", played_video, " - previous " , prev_video)
             players[played_video].load(VIDEO_PATHS[played_video])
+            standBy_player.set_volume(0)
             something_playing = True 
             players[prev_video].quit()
         else:
             None
 
-        #introduce noise
+            #introduce noise
         if update_video:
             if not something_playing:
                 players[played_video].load(VIDEO_PATHS[played_video])
                 something_playing = True  
-            #standBy_player.set_alpha(50*abs(gc))
-            players[played_video].set_alpha(255- 50*(abs(gc-videoRange_steps/2)))
+            standBy_player.set_volume(abs(gc-videoRange_steps/2))
             #standby_player.show_video()
             update_video = False
             
-          
-    except Exception as ex:
+        players[played_video].set_alpha(255- 50*(abs(gc-videoRange_steps/2)))
+
+##        if (players[played_video].position()>(video_dur[played_video] - 0.5)):
+##            print("stop")
+##            standBy_player.set_volume(3)
+    except: #DBusException quando deve far ripartire un video finito (dbus.exceptions.DBusException: org.freedesktop.DBus.Error.NoReply: Message recipient disconnected from message bus without replying)
         something_playing = False
-        logging.exception('Caught an error')
