@@ -18,15 +18,15 @@ Last_RoB_Status = 0
 Current_RoB_Status = 0
 
 # this video is used for noise between videos
-#STANDBY_PATH = Path("/home/pi/Miac/Video/whiteNoise.mp4")
-STANDBY_PATH = Path("/home/pi/Miac/Video/white_noise.mp4")
+#STANDBY_PATH = Path("/home/pi/Videos/whiteNoise.mp4")
+STANDBY_PATH = Path("/home/pi/Videos/white_noise.mp4")
 standBy_player = OMXPlayer(STANDBY_PATH, args= ['-o', 'local', '--no-osd', '--layer', '1', '--loop','--win', '1000,0,1640,480'], dbus_name='org.mpris.MediaPlayer2.omxplayer1') #'--win', '1000,0,1640,480'
 standBy_player.set_volume(0)
 #standBy_player.hide_video()
 
-#VIDEO_PATHS = [Path("/home/pi/Miac/Video/01.mp4"), Path("/home/pi/Miac/Video/02.mp4"),Path("/home/pi/Miac/Video/03.mp4"), Path("/home/pi/Miac/Video/04.mp4")]
-VIDEO_PATHS = [Path("/home/pi/Miac/Video/clip1.mp4"), Path("/home/pi/Miac/Video/clip2.mp4"),Path("/home/pi/Miac/Video/clip3.mp4"), Path("/home/pi/Miac/Video/clip4.mp4"),Path("/home/pi/Miac/Video/clip5.mp4"), Path("/home/pi/Miac/Video/clip6.mp4"),Path("/home/pi/Miac/Video/clip7.mp4"), Path("/home/pi/Miac/Video/clip8.mp4")]
-NOISE_PATH = Path("/home/pi/Miac/Video/standBy.mp4") #non più lungo di 1 secondo!
+#VIDEO_PATHS = [Path("/home/pi/Videos/01.mp4"), Path("/home/pi/Videos/02.mp4"),Path("/home/pi/Videos/03.mp4"), Path("/home/pi/Videos/04.mp4")]
+VIDEO_PATHS = [Path("/home/pi/Videos/clip1.mp4"), Path("/home/pi/Videos/clip2.mp4"),Path("/home/pi/Videos/clip3.mp4"), Path("/home/pi/Videos/clip4.mp4"),Path("/home/pi/Videos/clip5.mp4"), Path("/home/pi/Videos/clip6.mp4"),Path("/home/pi/Videos/clip7.mp4"), Path("/home/pi/Videos/clip8.mp4")]
+NOISE_PATH = Path("/home/pi/Videos/standBy.mp4") #non più lungo di 1 secondo!
 
 numOfVideos = 8
 
