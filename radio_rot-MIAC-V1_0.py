@@ -20,8 +20,8 @@ Current_RoB_Status = 0
 FOLDER = '/home/pi/Music/'
 DBUSNAME ='org.mpris.MediaPlayer2.omxplayer'
 
-ARGS1= ['-o', 'local', '--no-osd', '--layer', '1', '--loop' , '--win', '1000,0,1640,480'] #'--win', '1000,0,1640,480'
-ARGS2= ['-o', 'local', '--no-osd', '--layer', '2', '--win', '1000,0,1640,480']
+ARGS1= ['-o', 'local', '--no-osd', '--layer', '1', '--loop'] #'--win', '1000,0,1640,480'
+ARGS2= ['-o', 'local', '--no-osd', '--layer', '2']
 
 entries = os.listdir(FOLDER)
 entries.sort()
@@ -45,7 +45,7 @@ audio_dur = []
 something_playing = False
 noise_playing = False
 update_audio = False
-radioRange_steps = 12 # deve essere pari!
+radioRange_steps = 24 # deve essere pari!
 
 fade_speed = 10
 
@@ -92,11 +92,11 @@ def rotaryDeal():
         flag = 0
         if (Last_RoB_Status == 0) and (Current_RoB_Status == 1):
             globalCounter = globalCounter + 1
-            #print("globalCounter = " , globalCounter)
+            print("globalCounter = " , globalCounter)
             update_audio = True
         if (Last_RoB_Status == 1) and (Current_RoB_Status == 0):
             globalCounter = globalCounter - 1
-            #print("globalCounter = " , globalCounter)
+            print("globalCounter = " , globalCounter)
             update_audio = True
         
     return globalCounter
@@ -122,7 +122,9 @@ print("first played_audio ",played_audio)
 players[0].load(RADIO_PATHS[0])
 
 noise_transition_vol = 0.0
+play_transition_vol = 0.0
 noise_vol = 1.0
+play_vol = 0.0
 something_playing=True
 
 gc=0
@@ -137,6 +139,10 @@ while True:
             noise_vol = 1
         #introduce noise
         if update_audio:
+            noise_vol = (1/(radioRange_steps/2))*abs(gc-radioRange_steps/2)
+            noise_vol = round(noise_vol,2)
+            play_vol = 1-noise_vol
+
             #change video
             if (gc<0 or gc>radioRange_steps):
                 prev_audio = played_audio
@@ -151,34 +157,40 @@ while True:
                 
                 played_audio = played_audio%numOfAudios
                 #print("played video ", played_audio, " - previous " , prev_audio)
+                #sleep(1)
                 players[played_audio].load(RADIO_PATHS[played_audio])
+##                players[played_audio].set_volume(play_vol)
+
                 #noise_vol = 0
                 #standBy_player.set_volume(0)
                 something_playing = True 
                 players[prev_audio].quit()
                 
-            noise_vol = (1/(radioRange_steps/2))*abs(gc-radioRange_steps/2)
-            noise_vol = round(noise_vol,2)
-            play_vol = 1-noise_vol
-            if play_vol<0.3:
-                play_vol=0.3
             if not something_playing:
+                #sleep(1)
                 players[played_audio].load(RADIO_PATHS[played_audio])
                 something_playing = True
-            players[played_audio].set_volume(play_vol)
+                print(play_vol)
+##            players[played_audio].set_volume(play_vol)
             #standBy_player.set_volume(noise_vol)
             #standby_player.show_video()
             update_audio = False
             vol_setted = False
-        pret = noise_transition_vol
+            
         if not (noise_transition_vol == noise_vol):
             if noise_transition_vol>noise_vol:    
-                noise_transition_vol = round(noise_transition_vol-0.01, 2)
+                noise_transition_vol = round(noise_transition_vol-0.1, 1)
             else:
-                noise_transition_vol = round(noise_transition_vol+0.01, 2)
+                noise_transition_vol = round(noise_transition_vol+0.1, 1)
             standBy_player.set_volume(noise_transition_vol)
-##        if not (pret == noise_transition_vol):
-##            print("trans", noise_transition_vol, " - noise ", noise_vol)
-        players[played_audio].can_control()
+            
+        if not (play_transition_vol == play_vol):
+            if play_transition_vol>play_vol:    
+                play_transition_vol = round(play_transition_vol-0.1, 1)
+            else:
+                play_transition_vol = round(play_transition_vol+0.1, 1)
+            players[played_audio].set_volume(play_transition_vol)
+            #print(play_vol)
+        #players[played_audio].can_control()
     except: #DBusException quando deve far ripartire un video finito (dbus.exceptions.DBusException: org.freedesktop.DBus.Error.NoReply: Message recipient disconnected from message bus without replying)
         something_playing = False
