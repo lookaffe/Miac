@@ -130,6 +130,7 @@ print("first played_video ",played_video)
 players[0].load(VIDEO_PATHS[0])
 
 something_playing=1
+vol_setted = False # check if the volume of the noise is setted when video stops
 gc=0
 
 while True:
@@ -158,8 +159,11 @@ while True:
             gc = 0
 
             update_video = False
+            vol_setted = False
         else:
-            if not something_playing:
+            if not something_playing and not vol_setted:
+                vol_setted = True
+                print("setted ", vol_setted)
                 standBy_player.set_volume(1)
         players[played_video].can_control()
     except: #DBusException quando deve far ripartire un video finito (dbus.exceptions.DBusException: org.freedesktop.DBus.Error.NoReply: Message recipient disconnected from message bus without replying)
