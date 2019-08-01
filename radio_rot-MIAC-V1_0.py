@@ -47,7 +47,10 @@ audio_dur = []
 something_playing = False
 noise_playing = False
 update_audio = False
-radioRange_steps = 24 # deve essere pari!
+radioRange_steps = 24# even
+half_radioRange_steps = radioRange_steps/2
+step_noiseVal = round(2/radioRange_steps,2)
+print(step_noiseVal)
 
 played_audio = 0
 
@@ -90,7 +93,7 @@ def rotaryDeal():
     return globalCounter
 
 def clear(ev=None):
-    globalCounter = radioRange_steps/2
+    globalCounter = radioRange_steps
     print("globalCounter = " , globalCounter)
     time.sleep(1)
 
@@ -113,6 +116,11 @@ for x in range(numOfAudios):
     set_audio(x)
 print("first played_audio ",played_audio)
 
+# noise step values
+noise_val = []
+for x in range(radioRange_steps):
+    noise_val.append((step_noiseVal)*abs(x-half_radioRange_steps))
+
 noise_transition_vol = 0.0
 noise_vol = 1.0
 noise_time = 10
@@ -126,7 +134,7 @@ something_playing=True
 noNoise_range = 3
 
 # rotary steps
-gc=0
+gc=12
 
 # starting time of a video
 video_start= 0.0
@@ -136,29 +144,27 @@ noise_start = 0.0
 
 players[0].load(RADIO_PATHS[0])
 video_start = time.time()
+players[0].set_volume(play_vol)
 
 standBy_player.set_volume(noise_vol)
 
 while True:
     #update rotary value
     gc = rotaryDeal()
-    #print("some ", something_playing, " - noise ", noise_playing)
+    # if nothing is playing raise the noise
     if not something_playing:
         noise_end = time.time()
         noise_dur = noise_end - noise_start
-        #print(noise_dur)
+        # check noise timing, after noise_time lower the noise
         if noise_dur > noise_time:
             noise_vol = 0.2
-            #print("noise end")
         else:
             noise_vol = 1
             
     #introduce noise
     if update_audio:
-        noise_vol = (1/(radioRange_steps/2))*abs(gc-radioRange_steps/2)
-        noise_vol = round(noise_vol,2)
-        play_vol = 1-noise_vol
-
+        noise_vol = noise_val[gc%radioRange_steps]
+        play_vol = 1- noise_vol
         #change video
         if (gc<0 or gc>radioRange_steps):
             prev_audio = played_audio
@@ -174,6 +180,7 @@ while True:
             played_audio = played_audio%numOfAudios
             #print("played video ", played_audio, " - previous " , prev_audio)
             #sleep(1)
+            players[prev_audio].quit()
             players[played_audio].load(RADIO_PATHS[played_audio])
             video_start = time.time()
             #print("video_start ", video_start)
@@ -183,7 +190,7 @@ while True:
             #standBy_player.set_volume(0)
             something_playing = True
             noise_playing = False
-            players[prev_audio].quit()
+            
                 
         if not something_playing:
             #sleep(1)
@@ -196,7 +203,7 @@ while True:
         #standby_player.show_video()
         update_audio = False
     
-    if (gc > radioRange_steps/2 - noNoise_range) and (gc < radioRange_steps/2 + noNoise_range) and something_playing:                   
+    if (gc > half_radioRange_steps - noNoise_range) and (gc < half_radioRange_steps + noNoise_range) and something_playing:                   
         GPIO.output(ledPin,GPIO.HIGH)
         noise_vol = 0
     else:
@@ -223,6 +230,3 @@ while True:
         something_playing = False
         noise_start = time.time()
         print("noise start")
-        
-    # check noise timing
-
