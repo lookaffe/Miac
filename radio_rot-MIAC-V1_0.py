@@ -1,5 +1,6 @@
 from omxplayer.player import OMXPlayer
 from pathlib import Path
+import time
 from time import sleep
 import RPi.GPIO as GPIO
 import os
@@ -12,6 +13,7 @@ RoAPin = 7    # pin7
 RoBPin = 8    # pin8
 RoSPin = 13    # pin13
 globalCounter = 0
+ledPin = 18
 
 flag = 0
 Last_RoB_Status = 0
@@ -47,21 +49,7 @@ noise_playing = False
 update_audio = False
 radioRange_steps = 24 # deve essere pari!
 
-fade_speed = 10
-
 played_audio = 0
-
-def fade(videoNum, direction): # direction (1 fade in,  0 fade out)
-    if direction:
-        for x in range(0, 255, fade_speed):
-            vol = 1 - (x/255)
-            players[videoNum].set_volume(1-vol)
-            standBy_player.set_volume(vol)
-    else:
-        for x in range(0, 255, fade_speed):
-            vol = 1 - (x/255)
-            players[videoNum].set_volume(vol)
-            standBy_player.set_volume(1-vol)
 
 def set_audio(videoNum):
     players[videoNum].set_volume(1)
@@ -112,85 +100,129 @@ def rotaryClear():
 def destroy():
     GPIO.cleanup()             # Release resource
 
+# rotary setup
 setup()
 
+# led setup
+GPIO.setwarnings(False)
+GPIO.setup(ledPin,GPIO.OUT)
+
+# omxplayer setup
 for x in range(numOfAudios):
     players.append(OMXPlayer(RADIO_PATHS[x], args=ARGS2, dbus_name=DBUSNAME+str(x+2))) #, '--win', '1000,0,1640,480'
     set_audio(x)
 print("first played_audio ",played_audio)
 
-players[0].load(RADIO_PATHS[0])
-
 noise_transition_vol = 0.0
-play_transition_vol = 0.0
 noise_vol = 1.0
+noise_time = 10
+noise_playing = True
+
+play_transition_vol = 0.0
 play_vol = 0.0
 something_playing=True
 
+# steps around the middle to obtain no noise
+noNoise_range = 3
+
+# rotary steps
 gc=0
+
+# starting time of a video
+video_start= 0.0
+
+# starting time of noise
+noise_start = 0.0
+
+players[0].load(RADIO_PATHS[0])
+video_start = time.time()
+
 standBy_player.set_volume(noise_vol)
 
 while True:
     #update rotary value
     gc = rotaryDeal()
-    try:
-        if not something_playing and not vol_setted:
-            vol_setted = True
+    #print("some ", something_playing, " - noise ", noise_playing)
+    if not something_playing:
+        noise_end = time.time()
+        noise_dur = noise_end - noise_start
+        #print(noise_dur)
+        if noise_dur > noise_time:
+            noise_vol = 0.2
+            #print("noise end")
+        else:
             noise_vol = 1
-        #introduce noise
-        if update_audio:
-            noise_vol = (1/(radioRange_steps/2))*abs(gc-radioRange_steps/2)
-            noise_vol = round(noise_vol,2)
-            play_vol = 1-noise_vol
+            
+    #introduce noise
+    if update_audio:
+        noise_vol = (1/(radioRange_steps/2))*abs(gc-radioRange_steps/2)
+        noise_vol = round(noise_vol,2)
+        play_vol = 1-noise_vol
 
-            #change video
-            if (gc<0 or gc>radioRange_steps):
-                prev_audio = played_audio
-                if gc>0:
-                    played_audio = played_audio +1
-                    globalCounter = 0
-                    gc = 0
-                else:
-                    played_audio = played_audio -1
-                    globalCounter = radioRange_steps
-                    gc = radioRange_steps
-                
-                played_audio = played_audio%numOfAudios
-                #print("played video ", played_audio, " - previous " , prev_audio)
-                #sleep(1)
-                players[played_audio].load(RADIO_PATHS[played_audio])
+        #change video
+        if (gc<0 or gc>radioRange_steps):
+            prev_audio = played_audio
+            if gc>0:
+                played_audio = played_audio +1
+                globalCounter = 0
+                gc = 0
+            else:
+                played_audio = played_audio -1
+                globalCounter = radioRange_steps
+                gc = radioRange_steps
+            
+            played_audio = played_audio%numOfAudios
+            #print("played video ", played_audio, " - previous " , prev_audio)
+            #sleep(1)
+            players[played_audio].load(RADIO_PATHS[played_audio])
+            video_start = time.time()
+            #print("video_start ", video_start)
 ##                players[played_audio].set_volume(play_vol)
 
-                #noise_vol = 0
-                #standBy_player.set_volume(0)
-                something_playing = True 
-                players[prev_audio].quit()
+            #noise_vol = 0
+            #standBy_player.set_volume(0)
+            something_playing = True
+            noise_playing = False
+            players[prev_audio].quit()
                 
-            if not something_playing:
-                #sleep(1)
-                players[played_audio].load(RADIO_PATHS[played_audio])
-                something_playing = True
-                print(play_vol)
+        if not something_playing:
+            #sleep(1)
+            video_start = time.time()
+            players[played_audio].load(RADIO_PATHS[played_audio])
+            something_playing = True
+            noise_playing = False
 ##            players[played_audio].set_volume(play_vol)
-            #standBy_player.set_volume(noise_vol)
-            #standby_player.show_video()
-            update_audio = False
-            vol_setted = False
-            
-        if not (noise_transition_vol == noise_vol):
-            if noise_transition_vol>noise_vol:    
-                noise_transition_vol = round(noise_transition_vol-0.1, 1)
-            else:
-                noise_transition_vol = round(noise_transition_vol+0.1, 1)
-            standBy_player.set_volume(noise_transition_vol)
-            
-        if not (play_transition_vol == play_vol):
-            if play_transition_vol>play_vol:    
-                play_transition_vol = round(play_transition_vol-0.1, 1)
-            else:
-                play_transition_vol = round(play_transition_vol+0.1, 1)
-            players[played_audio].set_volume(play_transition_vol)
-            #print(play_vol)
-        #players[played_audio].can_control()
-    except: #DBusException quando deve far ripartire un video finito (dbus.exceptions.DBusException: org.freedesktop.DBus.Error.NoReply: Message recipient disconnected from message bus without replying)
+        #standBy_player.set_volume(noise_vol)
+        #standby_player.show_video()
+        update_audio = False
+    
+    if (gc > radioRange_steps/2 - noNoise_range) and (gc < radioRange_steps/2 + noNoise_range) and something_playing:                   
+        GPIO.output(ledPin,GPIO.HIGH)
+        noise_vol = 0
+    else:
+        GPIO.output(ledPin,GPIO.LOW)
+        
+    if not (noise_transition_vol == noise_vol):
+        if noise_transition_vol>noise_vol:    
+            noise_transition_vol = round(noise_transition_vol-0.1, 1)
+        else:
+            noise_transition_vol = round(noise_transition_vol+0.1, 1)
+        standBy_player.set_volume(noise_transition_vol)
+        
+    if not (play_transition_vol == play_vol) and something_playing:
+        if play_transition_vol>play_vol:    
+            play_transition_vol = round(play_transition_vol-0.1, 1)
+        else:
+            play_transition_vol = round(play_transition_vol+0.1, 1)
+        players[played_audio].set_volume(play_transition_vol)
+    
+    # check video ends
+    video_end = time.time()
+    dur = video_end - video_start
+    if (dur > audio_dur[played_audio]) and something_playing:
         something_playing = False
+        noise_start = time.time()
+        print("noise start")
+        
+    # check noise timing
+
