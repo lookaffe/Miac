@@ -22,8 +22,8 @@ FOLDER = '/home/pi/Videos/'
 DBUSNAME ='org.mpris.MediaPlayer2.omxplayer'
 
 # args for omxplayer
-ARGS1= ['-o', 'local', '--no-osd', '--layer', '1', '--loop', '--win', '1000,0,1640,480']
-ARGS2= ['-o', 'local', '--no-osd', '--layer', '2','--win', '1000,0,1640,480']
+ARGS1= ['-o', 'local', '--no-osd', '--layer', '1', '--loop']
+ARGS2= ['-o', 'local', '--no-osd', '--layer', '2'] #,'--win', '1000,0,1640,480'
 
 entries = os.listdir(FOLDER)
 entries.sort()
@@ -32,7 +32,7 @@ numOfVideos = len(entries)-1
 
 # this video is used for noise between
 STANDBY_PATH = Path(FOLDER + "white_noise.mp4")
-standBy_player = OMXPlayer(STANDBY_PATH, args=ARGS1, dbus_name=DBUSNAME + '1') #'--win', '1000,0,1640,480'
+standBy_player = OMXPlayer(STANDBY_PATH, args=ARGS1, dbus_name=DBUSNAME + '1')
 standBy_player.set_volume(0)
 
 VIDEO_PATHS = []

@@ -5,6 +5,7 @@ from time import sleep
 import RPi.GPIO as GPIO
 import os
 import logging
+from random import randrange
 
 # close all previous omxplayer instances
 os.system('killall omxplayer.bin')
@@ -47,7 +48,7 @@ audio_dur = []
 something_playing = False
 noise_playing = False
 update_audio = False
-radioRange_steps = 24# even
+radioRange_steps = 12# even
 half_radioRange_steps = radioRange_steps/2
 step_noiseVal = round(2/radioRange_steps,2)
 print(step_noiseVal)
@@ -109,6 +110,8 @@ setup()
 # led setup
 GPIO.setwarnings(False)
 GPIO.setup(ledPin,GPIO.OUT)
+p = GPIO.PWM(ledPin,100)
+p.start(0)
 
 # omxplayer setup
 for x in range(numOfAudios):
@@ -204,10 +207,13 @@ while True:
         update_audio = False
     
     if (gc > half_radioRange_steps - noNoise_range) and (gc < half_radioRange_steps + noNoise_range) and something_playing:                   
-        GPIO.output(ledPin,GPIO.HIGH)
+        p.ChangeDutyCycle(100)
+        #GPIO.output(ledPin,GPIO.HIGH)
         noise_vol = 0
     else:
-        GPIO.output(ledPin,GPIO.LOW)
+        
+        #GPIO.output(ledPin,GPIO.LOW)
+        p.ChangeDutyCycle(randrange(0,10))
         
     if not (noise_transition_vol == noise_vol):
         if noise_transition_vol>noise_vol:    
